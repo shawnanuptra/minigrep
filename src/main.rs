@@ -1,4 +1,4 @@
-use std::env;
+use std::{env, fs};
 
 fn main() {
     // take in args from the command line
@@ -11,4 +11,9 @@ fn main() {
 
     println!("Searching for {}", query);
     println!("In file {}", filename);
+
+    // fs (filesystem) reads content file, return as Result<Ok, Err>, where Ok is a String
+    let contents = fs::read_to_string(filename).expect("File can't be found");
+
+    println!("With text:\n {}", contents)
 }
