@@ -1,4 +1,4 @@
-use std::{env, fs, process};
+use std::{env, error::Error, fs, process};
 
 fn main() {
     // take in args from the command line
@@ -13,10 +13,18 @@ fn main() {
     println!("Searching for {}", config.query);
     println!("In file {}", config.filename);
 
-    // fs (filesystem) reads content file, return as Result<Ok, Err>, where Ok is a String
-    let contents = fs::read_to_string(config.filename).expect("File can't be found");
+    if let Err(e) = run(config) {
+        println!("Application error {}", e);
+        process::exit(1);
+    }
+}
 
-    println!("With text:\n {}", contents)
+fn run(config: Config) -> Result<(), Box<dyn Error>> {
+    // fs (filesystem) reads content file, return as Result<Ok, Err>, where Ok is a String
+    let contents = fs::read_to_string(config.filename)?;
+    println!("With text:\n {}", contents);
+
+    Ok(())
 }
 
 struct Config<'a> {
