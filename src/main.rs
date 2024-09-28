@@ -1,4 +1,5 @@
-use std::{env, error::Error, fs, process};
+use minigrep::Config;
+use std::{env, process};
 
 fn main() {
     // take in args from the command line
@@ -13,36 +14,8 @@ fn main() {
     println!("Searching for {}", config.query);
     println!("In file {}", config.filename);
 
-    if let Err(e) = run(config) {
+    if let Err(e) = minigrep::run(config) {
         println!("Application error {}", e);
         process::exit(1);
-    }
-}
-
-fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    // fs (filesystem) reads content file, return as Result<Ok, Err>, where Ok is a String
-    let contents = fs::read_to_string(config.filename)?;
-    println!("With text:\n {}", contents);
-
-    Ok(())
-}
-
-struct Config<'a> {
-    query: &'a str,
-    filename: &'a str,
-}
-
-impl<'a> Config<'a> {
-    fn new(args: &[String]) -> Result<Config, &str> {
-        // handle error if args.len() < 3
-        if args.len() < 3 {
-            return Err("Not enough arguments");
-        }
-        // because args[0] will print out binary path, we need to take args[0] and args[1] for query, filename
-        let query = &args[1];
-        let filename = &args[2];
-
-        // return Config instance
-        Ok(Config { query, filename })
     }
 }
