@@ -1,11 +1,17 @@
-use std::{error::Error, fs};
+use std::{env, error::Error, fs};
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     // fs (filesystem) reads content file, return as Result<Ok, Err>, where Ok is a String
     let contents = fs::read_to_string(config.filename)?;
 
-    // loop over the Vec<&str> from search(), and print to console
-    for line in search(&config.query, &contents) {
+    let results = if config.case_sensitive {
+        search(&config.query, &contents)
+    } else {
+        search_case_insensitive(&config.query, &contents)
+    };
+
+    // loop over results
+    for line in results {
         println!("{}", line)
     }
 
@@ -15,6 +21,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 pub struct Config<'a> {
     pub query: &'a str,
     pub filename: &'a str,
+    pub case_sensitive: bool,
 }
 
 impl<'a> Config<'a> {
@@ -27,8 +34,15 @@ impl<'a> Config<'a> {
         let query = &args[1];
         let filename = &args[2];
 
+        // if CASE_INSENSITIVE is set, is_err() will be false, as it is not an error
+        let case_sensitive = env::var("CASE_INSENSITIVE").is_err();
+
         // return Config instance
-        Ok(Config { query, filename })
+        Ok(Config {
+            query,
+            filename,
+            case_sensitive,
+        })
     }
 }
 
